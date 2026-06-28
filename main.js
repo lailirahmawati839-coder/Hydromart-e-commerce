@@ -4,7 +4,8 @@
 const SUPABASE_URL = "https://tjvxqubbsawvstmcpebu.supabase.co";
 const SUPABASE_KEY = "sb_publishable_F-96vYKWKPR-XUihoi5hTA_wYfEFqwa"; 
 
-const supabase = Supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+// DISINI DIUBAH: Menggunakan nama 'supabaseClient' agar tidak bentrok dengan CDN html
+const supabaseClient = Supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // Dua variabel status ini harus ada di sini (di luar fungsi) agar bisa dibaca semua sistem
 let currentMode = 'login';
@@ -47,12 +48,12 @@ async function handleAuth(e) {
         const role = document.getElementById('auth-role').value;
 
         // 1. Buat User baru di sistem autentikasi
-        const { data: authData, error: authError } = await supabase.auth.signUp({ email, password });
+        const { data: authData, error: authError } = await supabaseClient.auth.signUp({ email, password });
         if (authError) return alert("Pendaftaran Gagal: " + authError.message);
 
         if (authData.user) {
             // 2. Simpan profil tambahan (Role & Nama Lengkap)
-            const { error: profileError } = await supabase.from('profiles').insert([
+            const { error: profileError } = await supabaseClient.from('profiles').insert([
                 { id: authData.user.id, full_name: fullName, role: role }
             ]);
             if (profileError) alert("Gagal menyimpan profil: " + profileError.message);
@@ -61,11 +62,11 @@ async function handleAuth(e) {
         }
     } else {
         // Mode LOGIN
-        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+        const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
         if (error) return alert("Login gagal, cek kembali email/password: " + error.message);
 
         // Arahkan halaman sesuai Role (Vendor vs Pembeli)
-        const { data: profile } = await supabase.from('profiles').select('role').eq('id', data.user.id).single();
+        const { data: profile } = await supabaseClient.from('profiles').select('role').eq('id', data.user.id).single();
         if (profile && profile.role === 'vendor') {
             window.location.href = 'vendor.html';
         } else {
@@ -75,13 +76,13 @@ async function handleAuth(e) {
 }
 
 async function checkUserSession() {
-    const { data: { session } } = await supabase.auth.getSession();
+    const { data: { session } } = await supabaseClient.auth.getSession();
     if (session) {
         currentUserId = session.user.id;
         document.getElementById('login-nav-btn')?.classList.add('hidden');
         document.getElementById('logout-btn')?.classList.remove('hidden');
         
-        const { data: profile } = await supabase.from('profiles').select('full_name, role').eq('id', currentUserId).single();
+        const { data: profile } = await supabaseClient.from('profiles').select('full_name, role').eq('id', currentUserId).single();
         if (profile) {
             const userDisplay = document.getElementById('user-display');
             if (userDisplay) {
