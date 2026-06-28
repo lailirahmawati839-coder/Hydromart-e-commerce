@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hydromart - Aplikasi Toko Sipil Air</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body class="bg-gray-50">
+    <nav class="bg-orange-500 text-white p-4 shadow-md sticky top-0 z-50">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-2xl font-black tracking-wider cursor-pointer" onclick="window.location.reload()">HydroMart 🛒</h1>
+            <div class="flex items-center space-x-6">
+                <a href="#katalog" class="hover:text-gray-200 font-medium">Katalog</a>
+                <a href="#tracking-section" class="hover:text-gray-200 font-medium">Lacak Pesanan</a>
+                <span id="user-display" class="text-sm border-l pl-4 font-semibold">Tamu</span>
+                <button id="logout-btn" onclick="logout()" class="hidden bg-white text-orange-600 px-3 py-1 rounded text-sm font-bold">Keluar</button>
+                <a href="login.html" id="login-nav-btn" class="bg-white text-orange-600 px-4 py-2 rounded-lg text-sm font-bold shadow">Masuk</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mx-auto mt-6 px-4">
+        <div class="bg-gradient-to-r from-orange-600 to-amber-500 rounded-2xl p-8 text-white shadow-lg relative overflow-hidden flex flex-col md:flex-row items-center justify-between">
+            <div class="z-10 max-w-xl">
+                <span class="bg-white text-orange-600 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">Mega Promo Vendor</span>
+                <h2 class="text-3xl md:text-4xl font-extrabold mt-3 leading-tight">Diskon Alat Hidrolika & Sensor TMA Hingga 30%!</h2>
+                <p class="mt-2 text-orange-100 text-sm">Dapatkan current meter resmi, sensor otomatis pengukur hujan (ARR) langsung dari distributor terpercaya.</p>
+                <a href="#katalog" class="mt-5 inline-block bg-white text-orange-600 px-6 py-2.5 rounded-xl font-bold shadow hover:bg-orange-50 transition">Lihat Produk</a>
+            </div>
+            <div class="mt-6 md:mt-0 z-10 grid grid-cols-2 gap-3" id="featured-ads">
+                </div>
+            <div class="absolute right-0 bottom-0 opacity-10 text-[120px] font-black pointer-events-none select-none">HYDRO</div>
+        </div>
+    </div>
+
+    <main class="container mx-auto p-4 mt-6" id="katalog">
+        <h2 class="text-xl font-bold mb-6 text-gray-800 border-l-4 border-orange-500 pl-3">Rekomendasi Produk Kesipilan Air</h2>
+        <div id="product-grid" class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <p class="text-gray-500 col-span-full text-center py-10">Memuat produk pasar...</p>
+        </div>
+    </main>
+
+    <section class="container mx-auto p-4 mt-10 mb-20 bg-white rounded-xl shadow p-6" id="tracking-section">
+        <h2 class="text-xl font-bold mb-4 text-gray-800 border-l-4 border-blue-500 pl-3">Status Pengiriman Barang Kamu</h2>
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm border-collapse">
+                <thead>
+                    <tr class="bg-gray-100 text-gray-700 font-bold">
+                        <th class="p-3">Produk</th>
+                        <th class="p-3">Vendor Penjual</th>
+                        <th class="p-3">Total Harga</th>
+                        <th class="p-3">No. Resi Pengiriman</th>
+                        <th class="p-3">Status Terkini</th>
+                    </tr>
+                </thead>
+                <tbody id="tracking-table-body">
+                    <tr><td colspan="5" class="p-4 text-center text-gray-500">Silakan login terlebih dahulu untuk melihat tracking pesanan.</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <script src="main.js"></script>
+    <script>
+        window.onload = async () => {
+            await checkUserSession();
+            fetchMarketProducts();
+        };
+    </script>
+</body>
+</html>
