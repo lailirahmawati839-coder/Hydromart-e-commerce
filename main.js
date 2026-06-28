@@ -2,7 +2,7 @@
 const SUPABASE_URL = "https://tjvxqubbsawvstmcpebu.supabase.co";
 const SUPABASE_KEY = "sb_secret_i8VdARFQnbrtZ4oKo6Vjfg_uyP27Rh4"; 
 
-const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const supabase = Supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 let currentMode = 'login';
 let currentUserId = null;
