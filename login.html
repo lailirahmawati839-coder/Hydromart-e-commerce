@@ -44,6 +44,9 @@
         </p>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="main.js"></script>
-</body>
-</html>
+    <script>
+        window.onload = checkUserSession;
+        document.getElementById('auth-form').addEventListener('submit', handleAuth);
+    </script>
