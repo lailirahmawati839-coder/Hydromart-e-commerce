@@ -5,7 +5,7 @@ const SUPABASE_URL = "https://tjvxqubbsawvstmcpebu.supabase.co";
 const SUPABASE_KEY = "sb_publishable_F-96vYKWKPR-XUihoi5hTA_wYfEFqwa"; 
 
 // DISINI DIUBAH: Menggunakan nama 'supabaseClient' agar tidak bentrok dengan CDN html
-const supabaseClient = Supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // Dua variabel status ini harus ada di sini (di luar fungsi) agar bisa dibaca semua sistem
 let currentMode = 'login';
