@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Vendor - Hydromart</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body class="bg-gray-100">
+    <nav class="bg-slate-800 text-white p-4 shadow flex justify-between items-center">
+        <h1 class="text-xl font-bold">HydroMart 🏪 <span class="text-orange-400 text-sm font-normal">(Panel Vendor Toko)</span></h1>
+        <div class="flex items-center space-x-4">
+            <a href="index.html" class="text-sm hover:underline text-gray-300">Lihat Pasar Utama</a>
+            <button onclick="logout()" class="bg-red-600 px-3 py-1.5 rounded font-bold text-xs">Keluar Toko</button>
+        </div>
+    </nav>
+
+    <div class="container mx-auto p-6 max-w-5xl">
+        <div class="bg-white p-6 rounded-xl shadow mb-8">
+            <h2 class="text-lg font-bold mb-4 text-orange-600 border-b pb-2">Tambah / Upload Barang Dagangan</h2>
+            <form id="vendor-product-form" onsubmit="vendorSaveProduct(event)">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600">Nama Alat Air</label>
+                        <input type="text" id="v-name" required class="mt-1 block w-full p-2 border rounded">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600">Kategori Alat</label>
+                        <select id="v-category" class="mt-1 block w-full p-2 border rounded">
+                            <option value="Survey Lapangan">Survey Lapangan (Total Station/Waterpass)</option>
+                            <option value="Hidrolika">Laboratorium/Alat Hidrolika</option>
+                            <option value="Otomasi Air">Sensor Muka Air / Telemetri</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600">Harga Jual (Rp)</label>
+                        <input type="number" id="v-price" required class="mt-1 block w-full p-2 border rounded">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600">Stok Gudang</label>
+                        <input type="number" id="v-stock" required class="mt-1 block w-full p-2 border rounded">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-xs font-semibold text-gray-600">Link Foto Barang (URL)</label>
+                        <input type="url" id="v-image" required placeholder="https://..." class="mt-1 block w-full p-2 border rounded">
+                    </div>
+                    <div class="flex items-center mt-6">
+                        <input type="checkbox" id="v-featured" class="w-4 h-4 text-orange-500 border-gray-300 rounded">
+                        <label for="v-featured" class="ml-2 text-xs font-medium text-gray-700">Pasang di Iklan Banner Utama</label>
+                    </div>
+                </div>
+                <button type="submit" class="bg-orange-500 text-white px-5 py-2 rounded-lg font-bold hover:bg-orange-600 text-sm shadow">Upload ke Katalog</button>
+            </form>
+        </div>
+
+        <div class="bg-white p-6 rounded-xl shadow">
+            <h2 class="text-lg font-bold mb-4 text-blue-600 border-b pb-2">Kelola Pesanan Masuk & Update Tracking Resi</h2>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-xs border-collapse">
+                    <thead>
+                        <tr class="bg-gray-100 text-gray-700 font-bold">
+                            <th class="p-3">Produk</th>
+                            <th class="p-3">Jumlah</th>
+                            <th class="p-3">Input Resi Kurir</th>
+                            <th class="p-3">Status Pengiriman</th>
+                            <th class="p-3">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="vendor-orders-table">
+                        <tr><td colspan="5" class="p-4 text-center text-gray-400">Belum ada pesanan masuk ke tokomu.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="main.js"></script>
+    <script>
+        window.onload = async () => {
+            await protectVendorPage();
+            fetchVendorOrders();
+        };
+    </script>
+</body>
+</html>
