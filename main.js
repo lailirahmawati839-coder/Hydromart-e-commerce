@@ -4,7 +4,7 @@
 const SUPABASE_URL = "https://tjvxqubbsawvstmcpebu.supabase.co";
 const SUPABASE_KEY = "sb_publishable_F-96vYKWKPR-XUihoi5hTA_wYfEFqwa"; 
 
-// DISINI DIUBAH: Menggunakan nama 'supabaseClient' agar tidak bentrok dengan CDN html
+// Menggunakan nama 'supabaseClient' agar tidak bentrok dengan CDN bawaan html
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // Dua variabel status ini harus ada di sini (di luar fungsi) agar bisa dibaca semua sistem
@@ -65,13 +65,9 @@ async function handleAuth(e) {
         const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
         if (error) return alert("Login gagal, cek kembali email/password: " + error.message);
 
-        // Arahkan halaman sesuai Role (Vendor vs Pembeli)
-        const { data: profile } = await supabaseClient.from('profiles').select('role').eq('id', data.user.id).single();
-        if (profile && profile.role === 'vendor') {
-            window.location.href = 'vendor.html';
-        } else {
-            window.location.href = 'index.html';
-        }
+        alert("Login Berhasil!");
+        // Dialihkan langsung ke index.html agar checkUserSession otomatis mendeteksi tampilan role-nya
+        window.location.href = 'index.html';
     }
 }
 
@@ -86,8 +82,8 @@ async function checkUserSession() {
         currentUserId = session.user.id;
         
         // Atur tombol navbar
-        document.getElementById('login-nav-btn')?.classList.add('hidden');
-        document.getElementById('logout-btn')?.classList.remove('hidden');
+        if (document.getElementById('login-nav-btn')) document.getElementById('login-nav-btn').classList.add('hidden');
+        if (document.getElementById('logout-btn')) document.getElementById('logout-btn').classList.remove('hidden');
         
         // Ambil data profil dari database Supabase untuk mengecek Role
         const { data: profile } = await supabaseClient.from('profiles').select('full_name, role').eq('id', currentUserId).single();
@@ -122,10 +118,10 @@ async function checkUserSession() {
 }
 
 async function protectVendorPage() {
-    const { data: { session } } = await supabase.auth.getSession();
+    const { data: { session } } = await supabaseClient.auth.getSession();
     if (!session) { window.location.href = 'login.html'; return; }
     currentUserId = session.user.id;
-    const { data: profile } = await supabase.from('profiles').select('role').eq('id', currentUserId).single();
+    const { data: profile } = await supabaseClient.from('profiles').select('role').eq('id', currentUserId).single();
     if (!profile || profile.role !== 'vendor') {
         alert("Akses ditolak! Halaman ini khusus Vendor Mitra.");
         window.location.href = 'index.html';
@@ -144,7 +140,6 @@ async function fetchMarketProducts() {
     const grid = document.getElementById('product-grid');
     const adContainer = document.getElementById('featured-ads');
 
-    // Pastikan di bawah ini menggunakan supabaseClient
     let { data: products, error } = await supabaseClient.from('products').select('*');
     if (error || !products) return;
 
@@ -187,7 +182,7 @@ async function fetchMarketProducts() {
 }
 
 async function vendorSaveProduct(e) {
-    e.preventDefault();
+    if (e) e.preventDefault();
     const name = document.getElementById('v-name').value;
     const category = document.getElementById('v-category').value;
     const price = document.getElementById('v-price').value;
@@ -195,12 +190,18 @@ async function vendorSaveProduct(e) {
     const image_url = document.getElementById('v-image').value;
     const is_featured = document.getElementById('v-featured').checked;
 
-    const { error } = await supabase.from('products').insert([
+    // Diubah menggunakan nama variabel 'supabaseClient' agar bisa menginput produk
+    const { error } = await supabaseClient.from('products').insert([
         { vendor_id: currentUserId, name, category, price, stock, image_url, is_featured }
     ]);
 
-    if (error) alert("Gagal mengupload: " + error.message);
-    else { alert("Sukses! Produk terpasang di etalase pasar."); document.getElementById('vendor-product-form').reset(); }
+    if (error) {
+        alert("Gagal mengupload: " + error.message);
+    } else { 
+        alert("Sukses! Produk terpasang di etalase pasar."); 
+        document.getElementById('vendor-product-form').reset();
+        checkUserSession(); // Muat ulang visual form setelah sukses upload
+    }
 }
 
 // ============================================
@@ -209,7 +210,7 @@ async function vendorSaveProduct(e) {
 async function beliProductDirect(productId, vendorId, price) {
     if (!currentUserId) return alert("Silakan Login akun pembeli terlebih dahulu!");
 
-    const { error } = await supabase.from('orders').insert([
+    const { error } = await supabaseClient.from('orders').insert([
         { pembeli_id: currentUserId, vendor_id: vendorId, product_id: productId, quantity: 1, total_price: price, status: 'Diproses', resi_number: 'Belum Ada' }
     ]);
 
@@ -221,7 +222,7 @@ async function fetchPembeliTracking() {
     const tbody = document.getElementById('tracking-table-body');
     if (!tbody) return;
     
-    let { data: orders, error } = await supabase.from('orders').select('*, products(name), profiles:vendor_id(full_name)').eq('pembeli_id', currentUserId);
+    let { data: orders, error } = await supabaseClient.from('orders').select('*, products(name), profiles:vendor_id(full_name)').eq('pembeli_id', currentUserId);
     if(error || !orders) return;
 
     tbody.innerHTML = '';
@@ -245,10 +246,12 @@ async function fetchVendorOrders() {
     const tbody = document.getElementById('vendor-orders-table');
     if (!tbody) return;
 
-    let { data: orders, error } = await supabase.from('orders').select('*, products(name)').eq('vendor_id', currentUserId);
+    let { data: orders, error } = await supabaseClient.from('orders').select('*, products(name)').eq('vendor_id', currentUserId);
     if(error || !orders) return;
 
     tbody.innerHTML = '';
+    if(orders.length === 0) { tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-gray-400">Belum ada pesanan masuk ke tokomu.</td></tr>`; return; }
+
     orders.forEach(order => {
         tbody.innerHTML += `
             <tr class="border-b">
@@ -272,7 +275,7 @@ async function updateTrackingByVendor(orderId) {
     const resi = document.getElementById(`resi-${orderId}`).value;
     const status = document.getElementById(`status-${orderId}`).value;
 
-    const { error } = await supabase.from('orders').update({ resi_number: resi, status: status }).eq('id', orderId);
+    const { error } = await supabaseClient.from('orders').update({ resi_number: resi, status: status }).eq('id', orderId);
     if(error) alert("Gagal update tracking!");
     else { alert("Status Tracking Berhasil Diperbarui!"); fetchVendorOrders(); }
 }
