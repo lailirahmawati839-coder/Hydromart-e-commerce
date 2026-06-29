@@ -103,7 +103,9 @@
                 </div>
             </div>
         </div>
-    </div> <div id="vendor-section" class="container mx-auto p-4 mt-6 hidden">
+    </div> 
+
+    <div id="vendor-section" class="container mx-auto p-4 mt-6 hidden">
         <div class="bg-white p-6 rounded-2xl shadow mb-8 max-w-2xl mx-auto border-t-4 border-orange-500">
             <h2 class="text-2xl font-black text-gray-800 mb-2">Kelola Etalase Toko Air</h2>
             <p class="text-sm text-gray-500 mb-6">Masukkan spesifikasi alat hidrolika atau sensor air baru ke pasar umum.</p>
@@ -142,6 +144,28 @@
                 </div>
                 <button type="submit" class="w-full mt-4 bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 rounded-xl transition shadow-md">Pasang Produk di Etalase</button>
             </form>
+        </div>
+
+        <!-- [DISISIPKAN DISINI]: TABEL MONITORING ETALASE INTERNAL VENDOR -->
+        <div class="bg-white p-6 rounded-2xl shadow border-t-4 border-green-500 mb-8 max-w-4xl mx-auto">
+            <h2 class="text-xl font-bold mb-1 text-gray-800">Etalase Toko Kamu 📦</h2>
+            <p class="text-xs text-gray-400 mb-4">Berikut adalah daftar produk yang sedang aktif dipajang di pasar HydroMart.</p>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm border-collapse">
+                    <thead>
+                        <tr class="bg-gray-50 border-b text-gray-700 font-bold">
+                            <th class="p-3">Foto</th>
+                            <th class="p-3">Nama Alat / Produk</th>
+                            <th class="p-3">Kategori</th>
+                            <th class="p-3">Harga</th>
+                            <th class="p-3">Stok</th>
+                        </tr>
+                    </thead>
+                    <tbody id="vendor-my-products-table">
+                        <tr><td colspan="5" class="p-4 text-center text-gray-400">Belum ada produk yang kamu upload.</td></tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
 
         <div class="bg-white p-6 rounded-2xl shadow border-t-4 border-blue-500 mb-20">
