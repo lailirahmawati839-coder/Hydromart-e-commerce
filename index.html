@@ -49,7 +49,7 @@
                     <thead>
                         <tr class="bg-gray-100 text-gray-700 font-bold">
                             <th class="p-3">Produk</th>
-                            <th class="p-3">Vendor Penjual</th>
+                            <th class="p-3">Jumlah</th>
                             <th class="p-3">Total Harga</th>
                             <th class="p-3">No. Resi Pengiriman</th>
                             <th class="p-3">Status Terkini</th>
@@ -61,9 +61,49 @@
                 </table>
             </div>
         </section>
-    </div>
 
-    <div id="vendor-section" class="container mx-auto p-4 mt-6 hidden">
+        <div id="cart-float-btn" class="fixed bottom-6 right-6 z-50 hidden">
+            <button onclick="openCartModal()" class="bg-orange-500 hover:bg-orange-600 text-white p-4 rounded-full shadow-2xl flex items-center space-x-2 transition transform hover:scale-105">
+                <span class="font-bold">Keranjang Belanja 🛒</span>
+                <span id="cart-count" class="bg-white text-orange-600 font-black text-xs px-2.5 py-1 rounded-full">0</span>
+            </button>
+        </div>
+
+        <div id="cart-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
+            <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto p-6 relative">
+                <button onclick="closeCartModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 font-bold text-xl">&times;</button>
+                
+                <h2 class="text-2xl font-black text-gray-800 mb-4 border-b pb-2">Keranjang Belanja Kamu 🛒</h2>
+                
+                <div id="cart-items-list" class="space-y-4 mb-6">
+                    <p class="text-gray-500 text-center py-4">Keranjangmu masih kosong.</p>
+                </div>
+                
+                <div id="cart-form-section" class="border-t pt-4 space-y-4 hidden">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Alamat Pengiriman Lengkap</label>
+                        <textarea id="cart-alamat" required rows="2" placeholder="Contoh: Gedung Teknik Sipil ITS, Kampus Sukolilo, Surabaya" class="w-full border p-2 rounded-lg text-sm focus:ring-2 focus:ring-orange-400 outline-none"></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Metode Pembayaran Mandiri / Bersama</label>
+                        <select id="cart-pembayaran" class="w-full border p-2.5 rounded-lg text-sm focus:ring-2 focus:ring-orange-400 outline-none">
+                            <option value="Transfer Bank Mandiri">Transfer Bank Mandiri (No. Rek: 140001234567)</option>
+                            <option value="Transfer Bank BCA">Transfer Bank BCA (No. Rek: 8290123456)</option>
+                            <option value="Transfer Bank BRI">Transfer Bank BRI (No. Rek: 002101234567)</option>
+                            <option value="QRIS Mandiri Instan">QRIS Bayar Cepat (Scan Barcode Otomatis)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="bg-gray-50 p-3 rounded-xl flex justify-between items-center font-bold text-lg text-gray-800">
+                        <span>Total Pembayaran:</span>
+                        <span id="cart-total-price" class="text-orange-600">Rp 0</span>
+                    </div>
+                    
+                    <button onclick="checkoutKeranjang()" class="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 rounded-xl transition shadow-md">Konfirmasi & Bayar Sekarang</button>
+                </div>
+            </div>
+        </div>
+    </div> <div id="vendor-section" class="container mx-auto p-4 mt-6 hidden">
         <div class="bg-white p-6 rounded-2xl shadow mb-8 max-w-2xl mx-auto border-t-4 border-orange-500">
             <h2 class="text-2xl font-black text-gray-800 mb-2">Kelola Etalase Toko Air</h2>
             <p class="text-sm text-gray-500 mb-6">Masukkan spesifikasi alat hidrolika atau sensor air baru ke pasar umum.</p>
@@ -92,8 +132,8 @@
                         <input type="number" id="v-stock" required placeholder="Contoh: 15" class="w-full border p-2.5 rounded-lg text-sm focus:ring-2 focus:ring-orange-400 outline-none">
                     </div>
                     <div class="md:col-span-2">
-                        <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Link URL Gambar Alat</label>
-                        <input type="url" id="v-image" required placeholder="https://linkgambar.com/alat.jpg" class="w-full border p-2.5 rounded-lg text-sm focus:ring-2 focus:ring-orange-400 outline-none">
+                        <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Upload Foto / Gambar Alat Asli</label>
+                        <input type="file" id="v-image-file" required accept="image/*" class="w-full border p-2 rounded-lg text-sm bg-gray-50 focus:ring-2 focus:ring-orange-400 outline-none file:mr-4 file:py-1.5 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-orange-100 file:text-orange-700 hover:file:bg-orange-200 cursor-pointer">
                     </div>
                     <div class="md:col-span-2 flex items-center space-x-2 py-2">
                         <input type="checkbox" id="v-featured" class="w-4 h-4 text-orange-500 rounded border-gray-300 focus:ring-orange-400">
@@ -113,7 +153,7 @@
                         <tr class="bg-gray-50 border-b text-gray-700 font-bold">
                             <th class="p-3">Produk</th>
                             <th class="p-3">Jumlah</th>
-                            <th class="p-3">Input Nomor Resi</th>
+                            <th class="p-3">Input Nomor Resi / Info</th>
                             <th class="p-3">Ubah Status</th>
                             <th class="p-3">Aksi</th>
                         </tr>
@@ -129,7 +169,6 @@
     <script src="main.js"></script>
     <script>
         window.onload = async () => {
-            // Jalankan fungsi cek sesi dari main.js untuk menentukan memunculkan form vendor / pembeli
             await checkUserSession();
         };
     </script>
