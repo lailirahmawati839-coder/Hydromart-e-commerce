@@ -395,3 +395,33 @@ async function updateTrackingByVendor(orderId) {
     if(error) alert("Gagal update tracking!");
     else { alert("Status Tracking Berhasil Diperbarui!"); fetchVendorOrders(); }
 }
+// Fungsi untuk memuat produk yang dimiliki oleh vendor yang sedang login
+async function fetchVendorOwnProducts() {
+    const tbody = document.getElementById('vendor-my-products-table');
+    if (!tbody) return;
+
+    let { data: products, error } = await supabaseClient
+        .from('products')
+        .select('*')
+        .eq('vendor_id', currentUserId); // Mengambil produk berdasarkan id vendor aktif
+
+    if (error || !products) return;
+
+    tbody.innerHTML = '';
+    if (products.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-gray-400">Belum ada produk yang kamu upload.</td></tr>`;
+        return;
+    }
+
+    products.forEach(item => {
+        tbody.innerHTML += `
+            <tr class="border-b hover:bg-gray-50">
+                <td class="p-3"><img src="${item.image_url}" class="w-10 h-10 object-contain bg-gray-50 rounded p-0.5"></td>
+                <td class="p-3 font-semibold text-gray-800">${item.name}</td>
+                <td class="p-3 text-gray-500 text-xs">${item.category}</td>
+                <td class="p-3 font-bold text-orange-600">Rp ${Number(item.price).toLocaleString('id-ID')}</td>
+                <td class="p-3 text-gray-700">${item.stock} Pcs</td>
+            </tr>
+        `;
+    });
+}
