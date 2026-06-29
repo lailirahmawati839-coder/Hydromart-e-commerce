@@ -77,19 +77,47 @@ async function handleAuth(e) {
 
 async function checkUserSession() {
     const { data: { session } } = await supabaseClient.auth.getSession();
+    
+    // Ambil elemen section halaman pembeli dan vendor dari index.html
+    const pembeliSec = document.getElementById('pembeli-section');
+    const vendorSec = document.getElementById('vendor-section');
+
     if (session) {
         currentUserId = session.user.id;
+        
+        // Atur tombol navbar
         document.getElementById('login-nav-btn')?.classList.add('hidden');
         document.getElementById('logout-btn')?.classList.remove('hidden');
         
+        // Ambil data profil dari database Supabase untuk mengecek Role
         const { data: profile } = await supabaseClient.from('profiles').select('full_name, role').eq('id', currentUserId).single();
+        
         if (profile) {
+            // Tampilkan nama akun dan role di navbar luar
             const userDisplay = document.getElementById('user-display');
             if (userDisplay) {
                 userDisplay.innerText = `${profile.full_name} (${profile.role.toUpperCase()})`;
             }
-            if(profile.role === 'pembeli') fetchPembeliTracking();
+
+            // JIKA AKUN ADALAH VENDOR -> BUKA FORM INPUT BARANG
+            if (profile.role === 'vendor') {
+                if (vendorSec) vendorSec.classList.remove('hidden');
+                if (pembeliSec) pembeliSec.classList.add('hidden');
+                fetchVendorOrders(); // Muat tabel pesanan masuk
+            } 
+            // JIKA AKUN ADALAH PEMBELI -> BUKA KATALOG BIASA
+            else {
+                if (pembeliSec) pembeliSec.classList.remove('hidden');
+                if (vendorSec) vendorSec.classList.add('hidden');
+                fetchMarketProducts();
+                fetchPembeliTracking();
+            }
         }
+    } else {
+        // Jika pengunjung belum login (Tamu), otomatis tampilkan katalog pasar biasa
+        if (pembeliSec) pembeliSec.classList.remove('hidden');
+        if (vendorSec) vendorSec.classList.add('hidden');
+        fetchMarketProducts();
     }
 }
 
