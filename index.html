@@ -12,8 +12,8 @@
         <div class="container mx-auto flex justify-between items-center">
             <h1 class="text-2xl font-black tracking-wider cursor-pointer" onclick="window.location.reload()">HydroMart 🛒</h1>
             <div class="flex items-center space-x-6">
-                <a href="#katalog" class="hover:text-gray-200 font-medium">Katalog</a>
-                <a href="#tracking-section" class="hover:text-gray-200 font-medium">Lacak Pesanan</a>
+                <a href="#katalog" id="nav-katalog" class="hover:text-gray-200 font-medium">Katalog</a>
+                <a href="#tracking-section" id="nav-tracking" class="hover:text-gray-200 font-medium">Lacak Pesanan</a>
                 <span id="user-display" class="text-sm border-l pl-4 font-semibold">Tamu</span>
                 <button id="logout-btn" onclick="logout()" class="hidden bg-white text-orange-600 px-3 py-1 rounded text-sm font-bold">Keluar</button>
                 <a href="login.html" id="login-nav-btn" class="bg-white text-orange-600 px-4 py-2 rounded-lg text-sm font-bold shadow">Masuk</a>
@@ -21,52 +21,116 @@
         </div>
     </nav>
 
-    <div class="container mx-auto mt-6 px-4">
-        <div class="bg-gradient-to-r from-orange-600 to-amber-500 rounded-2xl p-8 text-white shadow-lg relative overflow-hidden flex flex-col md:flex-row items-center justify-between">
-            <div class="z-10 max-w-xl">
-                <span class="bg-white text-orange-600 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">Mega Promo Vendor</span>
-                <h2 class="text-3xl md:text-4xl font-extrabold mt-3 leading-tight">Diskon Alat Hidrolika & Sensor TMA Hingga 30%!</h2>
-                <p class="mt-2 text-orange-100 text-sm">Dapatkan current meter resmi, sensor otomatis pengukur hujan (ARR) langsung dari distributor terpercaya.</p>
-                <a href="#katalog" class="mt-5 inline-block bg-white text-orange-600 px-6 py-2.5 rounded-xl font-bold shadow hover:bg-orange-50 transition">Lihat Produk</a>
-            </div>
-            <div class="mt-6 md:mt-0 z-10 grid grid-cols-2 gap-3" id="featured-ads">
+    <div id="pembeli-section">
+        <div class="container mx-auto mt-6 px-4">
+            <div class="bg-gradient-to-r from-orange-600 to-amber-500 rounded-2xl p-8 text-white shadow-lg relative overflow-hidden flex flex-col md:flex-row items-center justify-between">
+                <div class="z-10 max-w-xl">
+                    <span class="bg-white text-orange-600 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">Mega Promo Vendor</span>
+                    <h2 class="text-3xl md:text-4xl font-extrabold mt-3 leading-tight">Diskon Alat Hidrolika & Sensor TMA Hingga 30%!</h2>
+                    <p class="mt-2 text-orange-100 text-sm">Dapatkan current meter resmi, sensor otomatis pengukur hujan (ARR) langsung dari distributor terpercaya.</p>
+                    <a href="#katalog" class="mt-5 inline-block bg-white text-orange-600 px-6 py-2.5 rounded-xl font-bold shadow hover:bg-orange-50 transition">Lihat Produk</a>
                 </div>
-            <div class="absolute right-0 bottom-0 opacity-10 text-[120px] font-black pointer-events-none select-none">HYDRO</div>
+                <div class="mt-6 md:mt-0 z-10 grid grid-cols-2 gap-3" id="featured-ads"></div>
+                <div class="absolute right-0 bottom-0 opacity-10 text-[120px] font-black pointer-events-none select-none">HYDRO</div>
+            </div>
         </div>
+
+        <main class="container mx-auto p-4 mt-6" id="katalog">
+            <h2 class="text-xl font-bold mb-6 text-gray-800 border-l-4 border-orange-500 pl-3">Rekomendasi Produk Kesipilan Air</h2>
+            <div id="product-grid" class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <p class="text-gray-500 col-span-full text-center py-10">Memuat produk pasar...</p>
+            </div>
+        </main>
+
+        <section class="container mx-auto p-4 mt-10 mb-20 bg-white rounded-xl shadow p-6" id="tracking-section">
+            <h2 class="text-xl font-bold mb-4 text-gray-800 border-l-4 border-blue-500 pl-3">Status Pengiriman Barang Kamu</h2>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm border-collapse">
+                    <thead>
+                        <tr class="bg-gray-100 text-gray-700 font-bold">
+                            <th class="p-3">Produk</th>
+                            <th class="p-3">Vendor Penjual</th>
+                            <th class="p-3">Total Harga</th>
+                            <th class="p-3">No. Resi Pengiriman</th>
+                            <th class="p-3">Status Terkini</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tracking-table-body">
+                        <tr><td colspan="5" class="p-4 text-center text-gray-500">Silakan login terlebih dahulu untuk melihat tracking pesanan.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
     </div>
 
-    <main class="container mx-auto p-4 mt-6" id="katalog">
-        <h2 class="text-xl font-bold mb-6 text-gray-800 border-l-4 border-orange-500 pl-3">Rekomendasi Produk Kesipilan Air</h2>
-        <div id="product-grid" class="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <p class="text-gray-500 col-span-full text-center py-10">Memuat produk pasar...</p>
+    <div id="vendor-section" class="container mx-auto p-4 mt-6 hidden">
+        <div class="bg-white p-6 rounded-2xl shadow mb-8 max-w-2xl mx-auto border-t-4 border-orange-500">
+            <h2 class="text-2xl font-black text-gray-800 mb-2">Kelola Etalase Toko Air</h2>
+            <p class="text-sm text-gray-500 mb-6">Masukkan spesifikasi alat hidrolika atau sensor air baru ke pasar umum.</p>
+            
+            <form id="vendor-product-form" onsubmit="vendorSaveProduct()">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Nama Alat / Produk</label>
+                        <input type="text" id="v-name" required placeholder="Contoh: Current Meter Digital" class="w-full border p-2.5 rounded-lg text-sm focus:ring-2 focus:ring-orange-400 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Kategori Alat</label>
+                        <select id="v-category" class="w-full border p-2.5 rounded-lg text-sm focus:ring-2 focus:ring-orange-400 outline-none">
+                            <option value="Hidrolika & Saluran">Hidrolika & Saluran</option>
+                            <option value="Sensor Otomatis / TMA">Sensor Otomatis / TMA</option>
+                            <option value="Alat Ukur Lapangan">Alat Ukur Lapangan</option>
+                            <option value="Aksesoris Drainase">Aksesoris Drainase</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Harga Barang (Rp)</label>
+                        <input type="number" id="v-price" required placeholder="Masukkan angka saja" class="w-full border p-2.5 rounded-lg text-sm focus:ring-2 focus:ring-orange-400 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Stok Tersedia</label>
+                        <input type="number" id="v-stock" required placeholder="Contoh: 15" class="w-full border p-2.5 rounded-lg text-sm focus:ring-2 focus:ring-orange-400 outline-none">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Link URL Gambar Alat</label>
+                        <input type="url" id="v-image" required placeholder="https://linkgambar.com/alat.jpg" class="w-full border p-2.5 rounded-lg text-sm focus:ring-2 focus:ring-orange-400 outline-none">
+                    </div>
+                    <div class="md:col-span-2 flex items-center space-x-2 py-2">
+                        <input type="checkbox" id="v-featured" class="w-4 h-4 text-orange-500 rounded border-gray-300 focus:ring-orange-400">
+                        <label for="v-featured" class="text-sm font-semibold text-gray-700 select-none">Tampilkan produk ini di Banner Rekomendasi Utama (Featured)</label>
+                    </div>
+                </div>
+                <button type="submit" class="w-full mt-4 bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 rounded-xl transition shadow-md">Pasang Produk di Etalase</button>
+            </form>
         </div>
-    </main>
 
-    <section class="container mx-auto p-4 mt-10 mb-20 bg-white rounded-xl shadow p-6" id="tracking-section">
-        <h2 class="text-xl font-bold mb-4 text-gray-800 border-l-4 border-blue-500 pl-3">Status Pengiriman Barang Kamu</h2>
-        <div class="overflow-x-auto">
-            <table class="w-full text-left text-sm border-collapse">
-                <thead>
-                    <tr class="bg-gray-100 text-gray-700 font-bold">
-                        <th class="p-3">Produk</th>
-                        <th class="p-3">Vendor Penjual</th>
-                        <th class="p-3">Total Harga</th>
-                        <th class="p-3">No. Resi Pengiriman</th>
-                        <th class="p-3">Status Terkini</th>
-                    </tr>
-                </thead>
-                <tbody id="tracking-table-body">
-                    <tr><td colspan="5" class="p-4 text-center text-gray-500">Silakan login terlebih dahulu untuk melihat tracking pesanan.</td></tr>
-                </tbody>
-            </table>
+        <div class="bg-white p-6 rounded-2xl shadow border-t-4 border-blue-500 mb-20">
+            <h2 class="text-xl font-bold mb-1 text-gray-800">Daftar Orderan Masuk Pelanggan</h2>
+            <p class="text-xs text-gray-400 mb-4">Update nomor resi kurir dan status pemrosesan barang pesanan mahasiswa/instansi di bawah.</p>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm border-collapse">
+                    <thead>
+                        <tr class="bg-gray-50 border-b text-gray-700 font-bold">
+                            <th class="p-3">Produk</th>
+                            <th class="p-3">Jumlah</th>
+                            <th class="p-3">Input Nomor Resi</th>
+                            <th class="p-3">Ubah Status</th>
+                            <th class="p-3">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="vendor-orders-table">
+                        <tr><td colspan="5" class="p-4 text-center text-gray-400">Belum ada orderan masuk dari pembeli.</td></tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
-    </section>
+    </div>
 
     <script src="main.js"></script>
     <script>
         window.onload = async () => {
+            // Jalankan fungsi cek sesi dari main.js untuk menentukan memunculkan form vendor / pembeli
             await checkUserSession();
-            fetchMarketProducts();
         };
     </script>
 </body>
