@@ -105,7 +105,7 @@ async function protectVendorPage() {
 }
 
 async function logout() {
-    await supabase.auth.signOut();
+    await supabaseClient.auth.signOut();
     window.location.href = 'index.html';
 }
 
@@ -116,7 +116,8 @@ async function fetchMarketProducts() {
     const grid = document.getElementById('product-grid');
     const adContainer = document.getElementById('featured-ads');
 
-    let { data: products, error } = await supabase.from('products').select('*');
+    // Pastikan di bawah ini menggunakan supabaseClient
+    let { data: products, error } = await supabaseClient.from('products').select('*');
     if (error || !products) return;
 
     if (grid) grid.innerHTML = '';
