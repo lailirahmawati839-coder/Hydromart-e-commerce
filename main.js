@@ -47,26 +47,25 @@ async function handleAuth(e) {
         const fullName = document.getElementById('auth-name').value;
         const role = document.getElementById('auth-role').value;
 
-        // 1. Buat User baru di sistem autentikasi
-        const { data: authData, error: authError } = await supabaseClient.auth.signUp({ email, password });
+        // DIUBAH DISINI: Menyimpan Nama & Role langsung ke dalam Metadata akun bawaan Supabase
+        const { data: authData, error: authError } = await supabaseClient.auth.signUp({ 
+            email, 
+            password,
+            options: {
+                data: { full_name: fullName, role: role }
+            }
+        });
+        
         if (authError) return alert("Pendaftaran Gagal: " + authError.message);
-
-        if (authData.user) {
-            // 2. Simpan profil tambahan (Role & Nama Lengkap)
-            const { error: profileError } = await supabaseClient.from('profiles').insert([
-                { id: authData.user.id, full_name: fullName, role: role }
-            ]);
-            if (profileError) alert("Gagal menyimpan profil: " + profileError.message);
-            alert("Pendaftaran Berhasil! Silakan masuk.");
-            toggleAuthMode();
-        }
+        alert("Pendaftaran Berhasil! Silakan langsung login masuk.");
+        toggleAuthMode();
+        
     } else {
         // Mode LOGIN
         const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
         if (error) return alert("Login gagal, cek kembali email/password: " + error.message);
 
         alert("Login Berhasil!");
-        // Dialihkan langsung ke index.html agar checkUserSession otomatis mendeteksi tampilan role-nya
         window.location.href = 'index.html';
     }
 }
@@ -85,29 +84,29 @@ async function checkUserSession() {
         if (document.getElementById('login-nav-btn')) document.getElementById('login-nav-btn').classList.add('hidden');
         if (document.getElementById('logout-btn')) document.getElementById('logout-btn').classList.remove('hidden');
         
-        // Ambil data profil dari database Supabase untuk mengecek Role
-        const { data: profile } = await supabaseClient.from('profiles').select('full_name, role').eq('id', currentUserId).single();
+        // DIUBAH DISINI: Membaca peran langsung dari User Metadata, tidak lagi memanggil tabel profiles yang error 404
+        const userMetadata = session.user.user_metadata;
+        const fullName = userMetadata?.full_name || "User Mitra";
+        const role = userMetadata?.role || "pembeli"; 
         
-        if (profile) {
-            // Tampilkan nama akun dan role di navbar luar
-            const userDisplay = document.getElementById('user-display');
-            if (userDisplay) {
-                userDisplay.innerText = `${profile.full_name} (${profile.role.toUpperCase()})`;
-            }
+        // Tampilkan nama akun dan role di navbar luar
+        const userDisplay = document.getElementById('user-display');
+        if (userDisplay) {
+            userDisplay.innerText = `${fullName} (${role.toUpperCase()})`;
+        }
 
-            // JIKA AKUN ADALAH VENDOR -> BUKA FORM INPUT BARANG
-            if (profile.role === 'vendor') {
-                if (vendorSec) vendorSec.classList.remove('hidden');
-                if (pembeliSec) pembeliSec.classList.add('hidden');
-                fetchVendorOrders(); // Muat tabel pesanan masuk
-            } 
-            // JIKA AKUN ADALAH PEMBELI -> BUKA KATALOG BIASA
-            else {
-                if (pembeliSec) pembeliSec.classList.remove('hidden');
-                if (vendorSec) vendorSec.classList.add('hidden');
-                fetchMarketProducts();
-                fetchPembeliTracking();
-            }
+        // JIKA AKUN ADALAH VENDOR -> BUKA FORM INPUT BARANG
+        if (role === 'vendor') {
+            if (vendorSec) vendorSec.classList.remove('hidden');
+            if (pembeliSec) pembeliSec.classList.add('hidden');
+            fetchVendorOrders(); // Muat tabel pesanan masuk
+        } 
+        // JIKA AKUN ADALAH PEMBELI -> BUKA KATALOG BIASA
+        else {
+            if (pembeliSec) pembeliSec.classList.remove('hidden');
+            if (vendorSec) vendorSec.classList.add('hidden');
+            fetchMarketProducts();
+            fetchPembeliTracking();
         }
     } else {
         // Jika pengunjung belum login (Tamu), otomatis tampilkan katalog pasar biasa
@@ -121,8 +120,11 @@ async function protectVendorPage() {
     const { data: { session } } = await supabaseClient.auth.getSession();
     if (!session) { window.location.href = 'login.html'; return; }
     currentUserId = session.user.id;
-    const { data: profile } = await supabaseClient.from('profiles').select('role').eq('id', currentUserId).single();
-    if (!profile || profile.role !== 'vendor') {
+    
+    const userMetadata = session.user.user_metadata;
+    const role = userMetadata?.role || "pembeli";
+    
+    if (role !== 'vendor') {
         alert("Akses ditolak! Halaman ini khusus Vendor Mitra.");
         window.location.href = 'index.html';
     }
@@ -190,7 +192,6 @@ async function vendorSaveProduct(e) {
     const image_url = document.getElementById('v-image').value;
     const is_featured = document.getElementById('v-featured').checked;
 
-    // Diubah menggunakan nama variabel 'supabaseClient' agar bisa menginput produk
     const { error } = await supabaseClient.from('products').insert([
         { vendor_id: currentUserId, name, category, price, stock, image_url, is_featured }
     ]);
@@ -200,7 +201,7 @@ async function vendorSaveProduct(e) {
     } else { 
         alert("Sukses! Produk terpasang di etalase pasar."); 
         document.getElementById('vendor-product-form').reset();
-        checkUserSession(); // Muat ulang visual form setelah sukses upload
+        checkUserSession(); 
     }
 }
 
@@ -222,7 +223,7 @@ async function fetchPembeliTracking() {
     const tbody = document.getElementById('tracking-table-body');
     if (!tbody) return;
     
-    let { data: orders, error } = await supabaseClient.from('orders').select('*, products(name), profiles:vendor_id(full_name)').eq('pembeli_id', currentUserId);
+    let { data: orders, error } = await supabaseClient.from('orders').select('*, products(name)').eq('pembeli_id', currentUserId);
     if(error || !orders) return;
 
     tbody.innerHTML = '';
@@ -233,7 +234,7 @@ async function fetchPembeliTracking() {
         tbody.innerHTML += `
             <tr class="border-b hover:bg-gray-50">
                 <td class="p-3 font-semibold">${order.products?.name || 'Alat Air'}</td>
-                <td class="p-3 text-gray-600">${order.profiles?.full_name || 'Mitra Toko'}</td>
+                <td class="p-3 text-gray-600">Mitra Toko</td>
                 <td class="p-3 font-bold text-orange-600">Rp ${Number(order.total_price).toLocaleString('id-ID')}</td>
                 <td class="p-3 font-mono text-gray-700">${order.resi_number}</td>
                 <td class="p-3"><span class="px-2.5 py-1 rounded-full text-xs font-bold ${statusColor}">${order.status}</span></td>
