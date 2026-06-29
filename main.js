@@ -170,23 +170,60 @@ async function fetchMarketProducts() {
 
 async function vendorSaveProduct(e) {
     if (e) e.preventDefault();
+    
     const name = document.getElementById('v-name').value;
     const category = document.getElementById('v-category').value;
     const price = document.getElementById('v-price').value;
     const stock = document.getElementById('v-stock').value;
-    const image_url = document.getElementById('v-image').value;
     const is_featured = document.getElementById('v-featured').checked;
+    
+    // Membaca file dari input upload yang baru di index.html
+    const fileInput = document.getElementById('v-image-file');
+    const file = fileInput?.files[0];
+    
+    if (!file) return alert("Silakan pilih file gambar alat terlebih dahulu!");
 
-    const { error } = await supabaseClient.from('products').insert([
-        { vendor_id: currentUserId, name, category, price, stock, image_url, is_featured }
-    ]);
+    // Ubah tulisan tombol agar user tahu proses sedang berjalan
+    const submitBtn = document.querySelector("#vendor-product-form button[type='submit']");
+    const originalBtnText = submitBtn.innerText;
+    submitBtn.innerText = "Sedang Mengupload Gambar...";
+    submitBtn.disabled = true;
 
-    if (error) {
-        alert("Gagal mengupload: " + error.message);
-    } else { 
-        alert("Sukses! Produk terpasang di etalase pasar."); 
+    try {
+        // 1. Buat nama file acak yang unik agar tidak bentrok di storage
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
+        const filePath = `product-images/${fileName}`;
+
+        // 2. Upload gambar ke Storage Bucket Supabase bernama 'assets'
+        const { data: storageData, error: storageError } = await supabaseClient.storage
+            .from('assets')
+            .upload(filePath, file);
+
+        if (storageError) throw new Error("Gagal menyimpan gambar ke Storage: " + storageError.message);
+
+        // 3. Ambil link URL Publik dari gambar yang baru diupload
+        const { data: { publicUrl } } = supabaseClient.storage
+            .from('assets')
+            .getPublicUrl(filePath);
+
+        // 4. Masukkan semua data spesifikasi alat + link URL gambar ke tabel products
+        const { error: insertError } = await supabaseClient.from('products').insert([
+            { vendor_id: currentUserId, name, category, price, stock, image_url: publicUrl, is_featured }
+        ]);
+
+        if (insertError) throw insertError;
+
+        alert("Sukses! Produk & Foto Alat Berhasil Terpasang di Etalase.");
         document.getElementById('vendor-product-form').reset();
-        checkUserSession(); 
+        checkUserSession(); // Muat ulang visual halaman
+
+    } catch (error) {
+        alert("Gagal mengupload: " + error.message);
+    } finally {
+        // Kembalikan tombol ke kondisi semula
+        submitBtn.innerText = originalBtnText;
+        submitBtn.disabled = false;
     }
 }
 
